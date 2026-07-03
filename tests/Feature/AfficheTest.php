@@ -6,6 +6,7 @@ use App\Livewire\Affiches\Index;
 use App\Models\Affiche;
 use App\Services\Pdf\CopyfitCloudflareDriver;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -37,6 +38,24 @@ it('creates an affiche through the editor', function () {
         ->assertHasNoErrors();
 
     expect(Affiche::where('ville', 'Yerres')->exists())->toBeTrue();
+});
+
+it('creates a new affiche without an explicit id column (postgres compatibility)', function () {
+    $inserts = [];
+    DB::listen(function ($query) use (&$inserts): void {
+        if (str_starts_with($query->sql, 'insert into "affiches"')) {
+            $inserts[] = $query->sql;
+        }
+    });
+
+    Livewire::test(Editor::class)
+        ->set('ville', 'Yerres')
+        ->set('statut', 'a_vendre')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect($inserts)->toHaveCount(1)
+        ->and($inserts[0])->not->toContain('"id"');
 });
 
 it('requires a city', function () {

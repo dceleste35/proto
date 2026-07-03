@@ -218,10 +218,10 @@ class Editor extends Component
     {
         $data = $this->validate();
 
-        $affiche = Affiche::updateOrCreate(
-            ['id' => $this->afficheId],
-            [...$data, 'photo_path' => $this->photo_path, 'agent_photo_path' => $this->agent_photo_path],
-        );
+        /* findOrNew évite d'inclure un id null dans l'insert (rejeté par Postgres). */
+        $affiche = Affiche::findOrNew($this->afficheId);
+        $affiche->fill([...$data, 'photo_path' => $this->photo_path, 'agent_photo_path' => $this->agent_photo_path]);
+        $affiche->save();
 
         $this->afficheId = $affiche->id;
 
