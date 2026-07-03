@@ -10,13 +10,14 @@ use Spatie\LaravelPdf\PdfBuilder;
 class AffichePdfController extends Controller
 {
     /**
-     * Génère l'affiche vitrine en PDF A4 paysage (Chrome headless via Browsershot).
+     * Génère l'affiche vitrine en PDF A4 paysage (Chrome headless :
+     * browsershot en local, gotenberg ou cloudflare en production).
      */
     public function __invoke(Affiche $affiche): PdfBuilder
     {
         $filename = 'affiche-'.str($affiche->ville)->slug().'-'.$affiche->id.'.pdf';
 
-        return Pdf::view('affiche.pdf', ['affiche' => $affiche])
+        $pdf = Pdf::view('affiche.pdf', ['affiche' => $affiche])
             ->format('a4')
             ->landscape()
             ->name($filename)
@@ -27,5 +28,13 @@ class AffichePdfController extends Controller
                     ->waitUntilNetworkIdle()
                     ->setDelay(400); // laisse le copyfitting (JS) ajuster la description avant capture
             });
+
+        if (config('laravel-pdf.driver') === 'gotenberg') {
+            // Gotenberg attend le signal de fin du copyfitting posé par le script du canvas
+            // (le driver cloudflare passe par waitForSelector — voir CopyfitCloudflareDriver).
+            $pdf->waitUntilReady('window.__afficheFitted === true');
+        }
+
+        return $pdf;
     }
 }

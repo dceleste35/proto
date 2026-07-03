@@ -238,8 +238,14 @@
             function fitAll() {
                 document.querySelectorAll('.av-desc').forEach(fitOne);
                 window.__afficheFitted = true;
+                // Signal de capture pour le driver PDF Cloudflare (waitForSelector).
+                document.documentElement.setAttribute('data-affiche-fitted', '');
             }
-            function schedule() { window.__afficheFitted = false; requestAnimationFrame(fitAll); }
+            function schedule() {
+                window.__afficheFitted = false;
+                document.documentElement.removeAttribute('data-affiche-fitted');
+                requestAnimationFrame(fitAll);
+            }
 
             if (document.fonts && document.fonts.ready) { document.fonts.ready.then(schedule); }
             window.addEventListener('load', schedule);

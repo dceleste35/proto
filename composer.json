@@ -115,13 +115,16 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "repositories": [{
-        "name": "sweepbright",
-        "type": "path",
-        "url": "./packages/agicom/laravel-sweepbright"
-    },{
-        "name": "telemaque",
-        "type": "vcs",
-        "url": "https://github.com/agicom/laravel-telemaque"
-    }]
+    "repositories": [
+        {
+            "name": "sweepbright",
+            "type": "path",
+            "url": "./packages/agicom/laravel-sweepbright"
+        },
+        {
+            "name": "telemaque",
+            "type": "path",
+            "url": "./packages/agicom/laravel-telemaque"
+        }
+    ]
 }

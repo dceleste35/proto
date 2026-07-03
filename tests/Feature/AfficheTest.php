@@ -4,6 +4,9 @@ use App\Enums\Statut;
 use App\Livewire\Affiches\Editor;
 use App\Livewire\Affiches\Index;
 use App\Models\Affiche;
+use App\Services\Pdf\CopyfitCloudflareDriver;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Spatie\LaravelPdf\Facades\Pdf;
 
@@ -75,6 +78,55 @@ it('generates a landscape A4 pdf for an affiche', function () {
     Pdf::assertRespondedWithPdf(fn ($pdf) => $pdf->viewName === 'affiche.pdf'
         && $pdf->orientation === 'Landscape'
         && $pdf->viewData['affiche']->ville === 'Yerres');
+});
+
+it('resolves the copyfit-aware driver for cloudflare pdf generation', function () {
+    config(['laravel-pdf.cloudflare' => ['api_token' => 'fake-token', 'account_id' => 'fake-account']]);
+
+    expect(app('laravel-pdf.driver.cloudflare'))->toBeInstanceOf(CopyfitCloudflareDriver::class);
+});
+
+it('generates the pdf through cloudflare browser rendering, waiting for the copyfit signal', function () {
+    config([
+        'laravel-pdf.driver' => 'cloudflare',
+        'laravel-pdf.cloudflare' => ['api_token' => 'fake-token', 'account_id' => 'fake-account'],
+    ]);
+
+    Http::fake(['api.cloudflare.com/*' => Http::response('%PDF-1.7 fake')]);
+
+    $affiche = Affiche::factory()->create(['ville' => 'Yerres']);
+
+    get(route('affiches.pdf', $affiche))->assertOk();
+
+    Http::assertSent(function (Request $request): bool {
+        $body = $request->data();
+
+        return str_contains($request->url(), '/browser-rendering/pdf')
+            && $body['waitForSelector']['selector'] === 'html[data-affiche-fitted]'
+            && $body['gotoOptions']['waitUntil'] === 'networkidle0'
+            && ($body['pdfOptions']['landscape'] ?? false) === true
+            && str_contains($body['html'], 'data:font/ttf;base64,')
+            && str_contains($body['html'], 'data-affiche-fitted');
+    });
+});
+
+it('generates the pdf through gotenberg, waiting for the copyfit expression', function () {
+    config([
+        'laravel-pdf.driver' => 'gotenberg',
+        'laravel-pdf.gotenberg' => ['url' => 'https://render.test', 'username' => null, 'password' => null],
+    ]);
+
+    Http::fake(['render.test/*' => Http::response('%PDF-1.7 fake')]);
+
+    $affiche = Affiche::factory()->create();
+
+    get(route('affiches.pdf', $affiche))->assertOk();
+
+    Http::assertSent(function (Request $request): bool {
+        return str_contains($request->url(), '/forms/chromium/convert/html')
+            && str_contains($request->body(), 'waitForExpression')
+            && str_contains($request->body(), 'window.__afficheFitted === true');
+    });
 });
 
 it('builds the status badge label with a day count', function () {

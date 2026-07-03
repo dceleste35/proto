@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b392e1de31990c6fa965350eabf59595",
+    "content-hash": "15320337595877c931df9acf1bd6fc82",
     "packages": [
         {
             "name": "agicom/laravel-sweepbright",
@@ -102,17 +102,11 @@
         },
         {
             "name": "agicom/laravel-telemaque",
-            "version": "v1.5",
-            "source": {
-                "type": "git",
-                "url": "git@github.com:agicom/laravel-telemaque.git",
-                "reference": "f652676c6c86e6181d447804fb5cb74bbb6582da"
-            },
+            "version": "1.5.0",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/agicom/laravel-telemaque/zipball/f652676c6c86e6181d447804fb5cb74bbb6582da",
-                "reference": "f652676c6c86e6181d447804fb5cb74bbb6582da",
-                "shasum": ""
+                "type": "path",
+                "url": "./packages/agicom/laravel-telemaque",
+                "reference": "cb3d643e3dc7aaec0b4ab1c187683a5b911e7392"
             },
             "require": {
                 "illuminate/contracts": "^11.0|^12.0|^13.0",
@@ -195,11 +189,9 @@
                 "laravel",
                 "laravel-telemaque"
             ],
-            "support": {
-                "source": "https://github.com/agicom/laravel-telemaque/tree/v1.5",
-                "issues": "https://github.com/agicom/laravel-telemaque/issues"
-            },
-            "time": "2026-04-07T13:20:48+00:00"
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "aws/aws-crt-php",

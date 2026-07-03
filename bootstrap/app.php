@@ -12,7 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Derrière le load balancer Laravel Cloud : fait confiance aux en-têtes X-Forwarded-*
+        // pour générer des URLs https correctes (assets, routes signées, redirections).
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
