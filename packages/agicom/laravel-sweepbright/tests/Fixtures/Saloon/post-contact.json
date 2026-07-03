@@ -1,0 +1,15 @@
+{
+    "statusCode": 202,
+    "headers": {
+        "Date": "Wed, 22 Oct 2025 10:53:39 GMT",
+        "Content-Type": "application\/vnd.sweepbright.v20241030+json",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "Server": "nginx\/1.27.2",
+        "Cache-Control": "no-cache, private",
+        "X-RateLimit-Limit": "240",
+        "X-RateLimit-Remaining": "239"
+    },
+    "data": "null",
+    "context": []
+}
